@@ -1,33 +1,15 @@
-import loginPage from '../support/pages/views/login'
-import shaversPage from '../support/pages/views/shavers'
-
 import data from '../fixtures/users-login.json'
-
 
 describe('login', () => {
 
-
-
-    context('quando eu submeto o formulário', () => {
-
-
+    context('quando submeto o formulário', () => {
         it('Deve logar com sucesso', () => {
-
-/*            cy.fixture('users').then(function(data){
-                loginPage.submit(data.email, data.password)
-                shaversPage.header.userShouldLoggedIn(data.name)
-            })
-*/
-            //dado que eu tenho um usuário 
             const user = data.success
-
             cy.createUser(user)
 
-            //quando faço login com esse usuário 
-            loginPage.submit(user.email, user.password)
+            cy.submitLogin(user.email, user.password)
 
-            //então sou autenticado 
-            shaversPage.header.userShouldLoggedIn(user.name)
+            cy.userShouldLoggedIn(user.name)
 
         })
 
@@ -35,11 +17,9 @@ describe('login', () => {
 
             const user = data.invpass
 
-            loginPage.submit(user.email, user.password)
+            cy.submitLogin(user.email, user.password)
 
-            const message = 'Ocorreu um erro ao fazer login, verifique suas credenciais.'
-
-            loginPage.shared.noticeErrorShouldBe(message)
+            cy.noticeErrorShouldBe('Ocorreu um erro ao fazer login, verifique suas credenciais.')
 
         })
 
@@ -48,23 +28,23 @@ describe('login', () => {
 
             const user = data.email404
 
-            loginPage.submit(user.email, user.password)
+            cy.submitLogin(user.email, user.password)
 
-            const message = 'Ocorreu um erro ao fazer login, verifique suas credenciais.'
-
-            loginPage.shared.noticeErrorShouldBe(message)
+            cy.noticeErrorShouldBe('Ocorreu um erro ao fazer login, verifique suas credenciais.')
 
         })
 
 
         it('campos obrigatórios', () => {
 
-            loginPage.submit()
+            cy.submitLogin()
 
-            const message = 'E-mail é obrigatório'
-            const messagesenha = 'Senha é obrigatória'
-
-            loginPage.requiredFields(message, messagesenha)
+            cy.get('.alert-error')
+                .should('have.length', 2)
+                .and(($small) => {
+                    expect($small.get(0).textContent).to.equal('E-mail é obrigatório')
+                    expect($small.get(1).textContent).to.equal('Senha é obrigatória')
+                })
 
         })
 
@@ -74,9 +54,8 @@ describe('login', () => {
             
         data.shortpass.forEach((p) => {
             it(`não deve logar com a senha: ${p}`, () => {
-                loginPage.submit('rodrigo.rcs@gmail.com', p)
-                const message = 'Pelo menos 6 caracteres'
-                loginPage.shared.alertShouldBe(message)
+                cy.submitLogin('rodrigo.rcs@gmail.com', p)
+                cy.alertShouldBe('Pelo menos 6 caracteres')
             })
         })
 
@@ -86,9 +65,8 @@ describe('login', () => {
 
          data.invemails.forEach((e) => {
             it(`não deve logar com a senha: ${e}`, () => {
-                loginPage.submit(e, '123456')
-                const message = 'Informe um email válido'
-                loginPage.shared.alertShouldBe(message)
+                cy.submitLogin(e, '123456')
+                cy.alertShouldBe('Informe um email válido')
             })
         })
 
