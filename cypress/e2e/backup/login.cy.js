@@ -19,7 +19,9 @@ describe('login', () => {
 
             cy.submitLogin(user.email, user.password)
 
-            cy.noticeErrorShouldBe('Ocorreu um erro ao fazer login, verifique suas credenciais.')
+            message = 'Ocorreu um erro ao fazer login, verifique suas credenciais.'
+            
+            cy.noticeErrorShouldBe(message)
 
         })
 
